@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  namespace: default
+  namespace: kubevirt
   name: kubevirt-crd-manifest
   annotations:
     "helm.sh/hook": pre-upgrade
@@ -14,7 +14,7 @@ data:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  namespace: default
+  namespace: kubevirt
   name: kubevirt-crd-upgrader
   annotations:
     "helm.sh/hook": pre-upgrade
@@ -51,7 +51,7 @@ metadata:
     "helm.sh/hook-weight": "3"
 subjects:
   - kind: ServiceAccount
-    namespace: default
+    namespace: kubevirt
     name: kubevirt-crd-upgrader
 roleRef:
   kind: ClusterRole
@@ -61,7 +61,7 @@ roleRef:
 apiVersion: batch/v1
 kind: Job
 metadata:
-  namespace: default
+  namespace: kubevirt
   name: kubevirt-crd-upgrader
   annotations:
     "helm.sh/hook": pre-upgrade
@@ -83,3 +83,12 @@ spec:
             - >
               kubectl get configmap kubevirt-crd-manifest -o "jsonpath={.data['crd']}" | kubectl apply -f -;
               sleep 10; # wait for the operator to handle the update
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
+

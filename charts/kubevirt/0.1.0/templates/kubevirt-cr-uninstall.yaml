@@ -67,3 +67,11 @@ spec:
             - >
               kubectl delete kubevirt kubevirt;
               sleep 45; # wait for the operator to clean up
+          securityContext:
+            seccompProfile:
+              type: RuntimeDefault
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+              - ALL
